@@ -3,29 +3,29 @@ package net.viktor.falkenberg.reader;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
- * Класс производит построчное чтение данных из файла.
+ * РљР»Р°СЃСЃ РїСЂРѕРёР·РІРѕРґРёС‚ РїРѕСЃС‚СЂРѕС‡РЅРѕРµ С‡С‚РµРЅРёРµ РґР°РЅРЅС‹С… РёР· С„Р°Р№Р»Р°.
  */
-public class CsvReader {
+public interface CsvReader {
     /**
-     * @param path путь к файлу
-     * @return список прочтенных строк
-     * @throws IOException возникает при ошибках чтения файла.
+     * @param path РїСѓС‚СЊ Рє С„Р°Р№Р»Сѓ
+     * @return СЃРїРёСЃРѕРє РїСЂРѕС‡С‚РµРЅРЅС‹С… СЃС‚СЂРѕРє
+     * @throws IOException РІРѕР·РЅРёРєР°РµС‚ РїСЂРё РѕС€РёР±РєР°С… С‡С‚РµРЅРёСЏ С„Р°Р№Р»Р°.
      */
-    public static List<String> readFile(String path) {
-        List<String> resultRead = new ArrayList<>();
-        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(path))) {
-            String lineFile;
-            while ((lineFile = bufferedReader.readLine()) != null) {
-                resultRead.add(lineFile);
-            }
+    default List<String> readFile(String path) {
+
+        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(path));
+             Stream<String> stringStream = bufferedReader.lines()) {
+            return stringStream.collect(Collectors.toList());
 
         } catch (IOException e) {
-            System.out.println("Ошибка при чтении файла");
+            System.out.println(e);
         }
-        return resultRead;
+        return Collections.emptyList();
     }
 }

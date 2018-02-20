@@ -1,12 +1,12 @@
 package net.viktor.falkenberg;
 
 import net.viktor.falkenberg.parser.CsvParser;
-import net.viktor.falkenberg.reader.CsvReader;
 import net.viktor.falkenberg.writer.CsvWriter;
 
-import java.io.IOException;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Входные данные подаются через аргументы.
@@ -14,11 +14,15 @@ import java.util.concurrent.ConcurrentHashMap;
  * Остальные аргументы пути к файлам csv.
  */
 public class Main {
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) throws InterruptedException, ExecutionException {
         ConcurrentHashMap<String, Set<String>> map = new ConcurrentHashMap<>();
+        CompletableFuture[] futures = new CompletableFuture[args.length -1];
         for (int i = 1; i < args.length; i++) {
-            new CsvParser(args[i], new CsvReader(), map).run();
+            CsvParser csvParser = new CsvParser(args[i], map);
+            futures[i-1] = CompletableFuture.runAsync(csvParser);
         }
+        CompletableFuture.allOf(futures).get();
         CsvWriter.writeFile(args[0], map);
     }
 }
+
